@@ -7,9 +7,10 @@ import mongoose from "mongoose";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
-const port =8000;
+
+const port = process.env.PORT || 3000;
 const app = express();
-console.log("userchats",UserChats);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -23,12 +24,11 @@ app.use(
 app.use(express.json());
 
 const connect = async () => {
- 
   try {
     await mongoose.connect(process.env.MONGO);
     console.log("Connected to MongoDB");
   } catch (err) {
-    console.log("Error connecting to MongoDB", err);
+    console.log(err);
   }
 };
 
@@ -43,10 +43,9 @@ app.get("/api/upload", (req, res) => {
   res.send(result);
 });
 
-app.get("/api/chats", /*ClerkExpressRequireAuth(),*/ async (req, res) => {
+app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
   const userId = req.auth.userId;
   const { text } = req.body;
-  res.send(text);
 
   try {
     // CREATE A NEW CHAT
@@ -89,16 +88,14 @@ app.get("/api/chats", /*ClerkExpressRequireAuth(),*/ async (req, res) => {
 
       res.status(201).send(newChat._id);
     }
- 
   } catch (err) {
     console.log(err);
     res.status(500).send("Error creating chat!");
   }
 });
 
-app.get("/api/userchats", /*ClerkExpressRequireAuth(),*/ async (req, res) => {
+app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res) => {
   const userId = req.auth.userId;
-  console.log("errrrrrrrrrrrrrrrrrrrrrrrr", userId);
 
   try {
     const userChats = await UserChats.find({ userId });
@@ -159,16 +156,9 @@ app.use((err, req, res, next) => {
 });
 
 // PRODUCTION
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
-});
-app.get("/hello", (req, res) => {
-  res.send("Hello World!");
-  console.log("Hello World!");
-})
+
 app.listen(port, () => {
   connect();
-  console.log("Server running on ", port);
+  console.log("Server running on 3000");
 });
