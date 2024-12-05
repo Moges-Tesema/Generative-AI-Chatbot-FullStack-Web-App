@@ -1,4 +1,3 @@
-I'd be glad to create an improved README for your Generative AI Chatbot project, incorporating the best aspects of the provided feedback and addressing potential shortcomings:
 
 # CSEC-ASTU Development Division: Generative AI Chatbot
 
